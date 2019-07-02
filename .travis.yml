@@ -12,7 +12,7 @@ before_install:
 - pip install --upgrade --user pip setuptools codecov
 install:
 - IMAGE_ID="$(docker build --build-arg VERSION="${PYTHON_VERSION}" --quiet .)"
-- CONTAINER_ID="$(docker run --detach --rm "${IMAGE_ID}")"
+- CONTAINER_ID="$(docker run --detach --tty --rm "${IMAGE_ID}")"
 script:
 - docker exec --interactive --tty "${CONTAINER_ID}" pytest
 after_success:
