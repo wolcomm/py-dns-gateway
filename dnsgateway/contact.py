@@ -9,13 +9,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations under
 # the License.
-"""dnsgateway package."""
+"""dnsgateway.contact module."""
 
 import logging
 
-import dnsgateway.__meta__  # noqa
+log = logging.getLogger(__name__)
 
-from dnsgateway.client import DnsGatewayClient
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-__all__ = [DnsGatewayClient.__name__]
+class Contact(object):
+    """Contact object implementation."""
+
+    pass
