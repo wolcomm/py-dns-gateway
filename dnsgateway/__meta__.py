@@ -30,7 +30,9 @@ __classifiers__ = [
     'Topic :: Internet :: Name Service (DNS)',
 ]
 __entry_points__ = {
-    'console_scripts': []
+    'console_scripts': [
+        'dns-gateway=dnsgateway.cli:main',
+    ]
 }
 
 
