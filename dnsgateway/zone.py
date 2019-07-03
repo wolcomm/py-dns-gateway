@@ -9,7 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations under
 # the License.
-"""dnsgateway.contact module."""
+"""dnsgateway.zone module."""
 
 import logging
 
@@ -18,18 +18,17 @@ from dnsgateway.base import BaseObject
 log = logging.getLogger(__name__)
 
 
-class Contact(BaseObject):
-    """Contact object implementation."""
+class Zone(BaseObject):
+    """Zone object implementation."""
 
     _attrs = {
         "wid": lambda v: isinstance(v, int),
-        "id": lambda v: v,
         "cdate": lambda v: v,
-        "name": lambda v: v,
-        "phone": lambda v: v,
-        "fax": lambda v: v,
-        "email": lambda v: v,
-        "contact_address": lambda v: isinstance(v, list),
-        "statuses": lambda v: v,
-        "linked": lambda v: isinstance(v, bool),
+        "operator": lambda v: v,
+        "url": lambda v: v,
+        "zone": lambda v: v,
+        "default_allow": lambda v: isinstance(v, bool),
+        "zone_access": lambda v: v,
+        "transport": lambda v: v,
+        "passthrough": lambda v: isinstance(v, bool),
     }
