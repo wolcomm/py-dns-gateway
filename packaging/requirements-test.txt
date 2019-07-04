@@ -1,4 +1,4 @@
-pytest
-pytest-cov
-pylama
-flake8-import-order
+flake8-import-order == 0.18.1
+pylama == 7.7.1
+pytest == 5.0.0
+pytest-cov == 2.7.1
