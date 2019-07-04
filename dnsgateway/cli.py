@@ -15,7 +15,8 @@ import logging
 
 import click
 
-from dnsgateway.client import DnsGatewayClient
+from dnsgateway.client import (DnsGatewayClient,
+                               DEVELOPMENT_ENDPOINT, PRODUCTION_ENDPOINT)
 
 log = logging.getLogger(__name__)
 
@@ -28,16 +29,28 @@ def loglevel(verbosity=0):
 
 
 @click.group()
-@click.option("-u", "--username")
-@click.option("-p", "--password")
-@click.option("-v", "--verbosity", count=True)
+@click.option("-u", "--username", envvar="DNS_GATEWAY_USERNAME",
+              help="Username for API authentication")
+@click.option("-p", "--password", envvar="DNS_GATEWAY_PASSWORD",
+              help="Password for API authentication")
+@click.option("--endpoint-url", help="API endpoint URL")
+@click.option("--pro", "endpoint_url", flag_value=PRODUCTION_ENDPOINT,
+              help=f"Shorthand for '--endpoint-url={PRODUCTION_ENDPOINT}'",
+              default=True)
+@click.option("--dev", "endpoint_url", flag_value=DEVELOPMENT_ENDPOINT,
+              help=f"Shorthand for '--endpoint-url={DEVELOPMENT_ENDPOINT}'")
+@click.option("-v", "verbosity", count=True, help="Increase logging verbosity")
 @click.version_option()
 @click.pass_context
-def main(ctx, username, password, verbosity):
-    """Root CLI entrypoint."""
+def main(ctx, username, password, endpoint_url, verbosity):
+    """Manage domain registrations via the DNS Gateway API.
+
+    See https://postman.gateway.africa/ for details.
+    """
     loglevel(verbosity=verbosity)
     log.debug("Setting up client instance")
-    ctx.obj = DnsGatewayClient(username=username, password=password)
+    ctx.obj = DnsGatewayClient(endpoint=endpoint_url,
+                               username=username, password=password)
 
 
 @main.group(help="Manage domains")
@@ -52,8 +65,11 @@ def domain(ctx):
 def list_domains(ctx):
     """List registered domains."""
     log.debug("Listing domains")
-    for domain in ctx.obj.domains:
-        click.echo(domain)
+    try:
+        for domain in ctx.obj.domains:
+            click.echo(domain)
+    except Exception:
+        raise click.Abort
 
 
 @domain.command(name="show", help="Show domain details")
@@ -62,8 +78,11 @@ def list_domains(ctx):
 def show_domain(ctx, domain_name):
     """Show domain details."""
     log.debug(f"Getting details for domain '{domain_name}'")
-    domain = ctx.obj.domain(name=domain_name)
-    click.echo(domain)
+    try:
+        domain = ctx.obj.domain(name=domain_name)
+        click.echo(domain)
+    except Exception:
+        raise click.Abort
 
 
 @main.group(help="Manage contacts")
@@ -78,8 +97,11 @@ def contact(ctx):
 def list_contacts(ctx):
     """List registered contacts."""
     log.debug("Listing contacts")
-    for contact in ctx.obj.contacts:
-        click.echo(contact)
+    try:
+        for contact in ctx.obj.contacts:
+            click.echo(contact)
+    except Exception:
+        raise click.Abort
 
 
 @contact.command(name="show", help="Show contact details")
@@ -88,8 +110,11 @@ def list_contacts(ctx):
 def show_contact(ctx, contact_id):
     """Show contact details."""
     log.debug(f"Getting details for contact '{contact_id}'")
-    contact = ctx.obj.contact(id=contact_id)
-    click.echo(contact)
+    try:
+        contact = ctx.obj.contact(id=contact_id)
+        click.echo(contact)
+    except Exception:
+        raise click.Abort
 
 
 @main.group(help="Manage zones")
@@ -104,5 +129,8 @@ def zone(ctx):
 def list_zones(ctx):
     """List available zones."""
     log.debug("Listing zones")
-    for zone in ctx.obj.zones:
-        click.echo(zone)
+    try:
+        for zone in ctx.obj.zones:
+            click.echo(zone)
+    except Exception:
+        raise click.Abort
