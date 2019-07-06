@@ -9,30 +9,18 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations under
 # the License.
-"""dnsgateway client tests."""
+"""dnsgateway client zone management tests."""
 
 from dnsgateway import DnsGatewayClient
-from dnsgateway.contact import Contact
-from dnsgateway.domain import Domain
 from dnsgateway.zone import Zone
 
 
-class TestClient(object):
-    """Test cases."""
+class TestZones(object):
+    """Test cases for zone management."""
 
     def test_instance(self, client):
         """Test instantiation."""
         assert isinstance(client, DnsGatewayClient)
-
-    def test_domains(self, client):
-        """Test domains property."""
-        for domain in client.domains:
-            assert isinstance(domain, Domain)
-
-    def test_contacts(self, client):
-        """Test contacts property."""
-        for contact in client.contacts:
-            assert isinstance(contact, Contact)
 
     def test_zones(self, client):
         """Test zones property."""
