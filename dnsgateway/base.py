@@ -61,13 +61,18 @@ class BaseObject(object):
 
     def refresh(self):
         """Refresh the object properties."""
-        props = self.client.get(path=self.path)
+        props = self.client._get(path=self.path)
         self._update_properties(**props)
         return self
 
     def update(self, **kwargs):
         """Update the object."""
         data = {k: v for k, v in kwargs.items() if k in self._keys}
-        props = self.client.put(path=self.path, data=data)
+        props = self.client._put(path=self.path, data=data)
         self._update_properties(**props)
         return self
+
+    def delete(self):
+        """Delete the object."""
+        self.client._delete(path=self.path)
+        del self

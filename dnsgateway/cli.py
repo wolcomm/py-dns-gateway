@@ -107,6 +107,21 @@ def create_domain(ctx, **kwargs):
         click.Abort
 
 
+@domain.command(name="delete", help="Delete domain")
+@click.argument("domain_name")
+@click.pass_context
+def delete_domain(ctx, domain_name):
+    """Delete domain."""
+    log.debug(f"Deleting domain '{domain_name}'")
+    try:
+        domain = ctx.obj.domain(name=domain_name)
+        domain.delete()
+        click.echo(f"Domain {domain_name} deleted")
+    except Exception as e:
+        log.error(e)
+        click.Abort
+
+
 @main.group(help="Manage contacts")
 @click.pass_context
 def contact(ctx):
@@ -141,18 +156,18 @@ def show_contact(ctx, contact_id):
 
 @contact.command(name="create", help="Create new contact")
 @click.option("--id", required=True, help="Contact ID")
-@click.option("--name", help="Contact name")
+@click.option("--name", required=True, help="Contact name")
 @click.option("--org", help="Contact organisation")
-@click.option("--email", help="Contact email address")
-@click.option("--phone", help="Contact phone number")
+@click.option("--email", required=True, help="Contact email address")
+@click.option("--phone", required=True, help="Contact phone number")
 @click.option("--fax", help="Contact fax number")
 @click.option("--address1", help="Contact address line 1")
 @click.option("--address2", help="Contact address line 2")
 @click.option("--address3", help="Contact address line 3")
-@click.option("--city", help="Contact address city")
+@click.option("--city", required=True, help="Contact address city")
 @click.option("--province", help="Contact address province")
 @click.option("--code", help="Contact address postal code")
-@click.option("--country", help="Contact address country code")
+@click.option("--country", required=True, help="Contact address country code")
 @click.pass_context
 def create_contact(ctx, **kwargs):
     """Create a new contact."""
@@ -163,6 +178,21 @@ def create_contact(ctx, **kwargs):
         click.echo(contact)
     except Exception:
         raise click.Abort
+
+
+@contact.command(name="delete", help="Delete contact")
+@click.argument("contact_id")
+@click.pass_context
+def delete_contact(ctx, contact_id):
+    """Delete contact."""
+    log.debug(f"Deleting contact '{contact_id}'")
+    try:
+        contact = ctx.obj.contact(id=contact_id)
+        contact.delete()
+        click.echo(f"Contact {contact_id} deleted")
+    except Exception as e:
+        log.error(e)
+        click.Abort
 
 
 @main.group(help="Manage zones")

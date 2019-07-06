@@ -72,6 +72,12 @@ class DnsGatewayClient(object):
     def _post(self, path=None, data=None):
         return self._request(method="POST", path=path, data=data)
 
+    def _put(self, path=None, data=None):
+        return self._request(method="PUT", path=path, data=data)
+
+    def _delete(self, path=None):
+        return self._request(method="DELETE", path=path)
+
     def _get_iter(self, path=None, params=None):
         next = path
         while next is not None:
