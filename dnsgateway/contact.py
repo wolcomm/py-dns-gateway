@@ -21,17 +21,7 @@ log = logging.getLogger(__name__)
 class Contact(BaseObject):
     """Contact object implementation."""
 
-    _attrs = {
-        "wid": lambda v: isinstance(v, int),
-        "id": lambda v: v,
-        "cdate": lambda v: v,
-        "name": lambda v: v,
-        "phone": lambda v: v,
-        "fax": lambda v: v,
-        "email": lambda v: v,
-        "contact_address": lambda v: isinstance(v, list),
-        "statuses": lambda v: v,
-        "linked": lambda v: isinstance(v, bool),
-        "detail": lambda v: v,
-        "domains": lambda v: isinstance(v, int)
-    }
+    base_path = f"{BaseObject.base_path}/contacts"
+
+    _keys = ("wid", "id", "cdate", "name", "phone", "fax", "email",
+             "contact_address", "statuses", "linked", "detail", "domains")

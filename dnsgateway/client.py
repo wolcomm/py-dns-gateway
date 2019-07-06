@@ -84,25 +84,25 @@ class DnsGatewayClient(object):
     def domains(self):
         """Get a list of registered domains."""
         log.debug("Trying to get registered domains")
-        path = "registry/domains"
+        path = f"{Domain.base_path}/"
         for data in self._get_iter(path=path):
             for result in data["results"]:
                 yield Domain(client=self, **result)
 
-    def domain(self, id=None, name=None):
-        """Get a domain by id or name."""
+    def domain(self, wid=None, name=None):
+        """Get a domain by wid or name."""
         if id and name:
-            err = RuntimeError("specify only one of 'id' or 'name'")
+            err = RuntimeError("specify only one of 'wid' or 'name'")
             log.error(err)
             raise err
         if id:
-            log.debug(f"Trying to get domain by id '{id}'")
-            path = f"registry/domains/{id}"
+            log.debug(f"Trying to get domain by wid '{wid}'")
+            path = f"{Domain.base_path}/{wid}"
             data = self._get(path=path)
             return Domain(client=self, **data)
         if name:
             log.debug(f"Trying to get domain by name '{name}'")
-            path = "registry/domains"
+            path = f"{Domain.base_path}/"
             params = {"name": name}
             data = self._get(path=path, params=params)
             if data["count"] != 1:
@@ -115,7 +115,7 @@ class DnsGatewayClient(object):
     def contacts(self):
         """Get a list of registered contacts."""
         log.debug("Trying to get registered contacts")
-        path = "registry/contacts"
+        path = f"{Contact.base_path}/"
         for data in self._get_iter(path=path):
             for result in data["results"]:
                 yield Contact(client=self, **result)
@@ -124,7 +124,7 @@ class DnsGatewayClient(object):
         """Get a contact by id."""
         if id:
             log.debug(f"Trying to get contact by id '{id}'")
-            path = "registry/contacts"
+            path = f"{Contact.base_path}/"
             params = {"id": id}
             data = self._get(path=path, params=params)
             if data["count"] != 1:
@@ -139,7 +139,7 @@ class DnsGatewayClient(object):
                        city=None, province=None, code=None, country=None):
         """Create a contact."""
         log.debug("Trying to create a new contact")
-        path = "registry/contacts/"
+        path = f"{Contact.base_path}/"
         details = {
             "id": id,
             "phone": phone,
@@ -168,7 +168,7 @@ class DnsGatewayClient(object):
     def zones(self):
         """Get list of supported zones."""
         log.debug("Trying to get supported zones")
-        path = "registry/zones"
+        path = f"{Zone.base_path}/"
         for data in self._get_iter(path=path):
             for result in data["results"]:
                 yield Zone(client=self, **result)

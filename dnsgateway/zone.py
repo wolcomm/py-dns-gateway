@@ -21,14 +21,7 @@ log = logging.getLogger(__name__)
 class Zone(BaseObject):
     """Zone object implementation."""
 
-    _attrs = {
-        "wid": lambda v: isinstance(v, int),
-        "cdate": lambda v: v,
-        "operator": lambda v: v,
-        "url": lambda v: v,
-        "zone": lambda v: v,
-        "default_allow": lambda v: isinstance(v, bool),
-        "zone_access": lambda v: v,
-        "transport": lambda v: v,
-        "passthrough": lambda v: isinstance(v, bool),
-    }
+    base_path = f"{BaseObject.base_path}/zones"
+
+    _keys = ("wid", "cdate", "operator", "url", "zone", "default_allow",
+             "zone_access", "transport", "passthrough")
