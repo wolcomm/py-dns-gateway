@@ -29,9 +29,11 @@ def loglevel(verbosity=0):
 
 
 @click.group()
-@click.option("-u", "--username", envvar="DNS_GATEWAY_USERNAME",
+@click.option("-u", "--username",
+              envvar="DNS_GATEWAY_USERNAME", show_envvar=True,
               help="Username for API authentication")
-@click.option("-p", "--password", envvar="DNS_GATEWAY_PASSWORD",
+@click.option("-p", "--password",
+              envvar="DNS_GATEWAY_PASSWORD", show_envvar=True,
               help="Password for API authentication")
 @click.option("--endpoint-url", help="API endpoint URL")
 @click.option("--pro", "endpoint_url", flag_value=PRODUCTION_ENDPOINT,
