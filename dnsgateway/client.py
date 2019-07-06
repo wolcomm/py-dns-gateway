@@ -54,10 +54,10 @@ class DnsGatewayClient(object):
             resp.raise_for_status()
         except Exception as e:
             try:
-                detail = resp.json().get("detail")
+                error_details = resp.json()
             except Exception:
-                detail = None
-            log.error(f"{e}: {detail}")
+                error_details = None
+            log.error(f"{e}: {error_details}")
             raise e
         try:
             data = resp.json()
@@ -110,6 +110,27 @@ class DnsGatewayClient(object):
                 log.error(err)
                 raise err
             return Domain(client=self, **data["results"][0])
+
+    def create_domain(self, name=None, period=1, period_unit="y",
+                      autorenew=False, authinfo="coza", hosts=[],
+                      admin=None, registrant=None, billing=None, tech=None):
+        """Create a domain."""
+        log.debug(f"Trying to create domain {name}")
+        path = f"{Domain.base_path}/"
+        kwargs = locals()
+        details = {
+            "name": name,
+            "period": period,
+            "period_unit": period_unit,
+            "autorenew": autorenew,
+            "authinfo": authinfo,
+            "hosts": [{"hostname": host} for host in hosts],
+            "contacts": [{"type": t, "contact": {"id": kwargs[t]}}
+                         for t in ("admin", "registrant", "billing", "tech")]
+        }
+        log.debug(f"Domain details: {details}")
+        data = self._post(path=path, data=details)
+        return Domain(client=self, **data)
 
     @property
     def contacts(self):

@@ -85,6 +85,28 @@ def show_domain(ctx, domain_name):
         raise click.Abort
 
 
+@domain.command(name="create", help="Create new domain")
+@click.option("--name", required=True, help="Domain name")
+@click.option("--period", default=1, help="Registration period in years")
+@click.option("--autorenew", is_flag=True, help="Enable autorenewal")
+@click.option("--host", "-h", "hosts", multiple=True, help="Nameserver host")
+@click.option("--admin", required=True, help="Administrative contact id")
+@click.option("--registrant", required=True, help="Registrant contact id")
+@click.option("--billing", required=True, help="Billing contact id")
+@click.option("--tech", required=True, help="Technical contact id")
+@click.pass_context
+def create_domain(ctx, **kwargs):
+    """Create a new domain."""
+    log.debug("Creating new domain")
+    log.debug(kwargs)
+    try:
+        domain = ctx.obj.create_domain(**kwargs)
+        click.echo(domain)
+    except Exception as e:
+        log.error(e)
+        click.Abort
+
+
 @main.group(help="Manage contacts")
 @click.pass_context
 def contact(ctx):
