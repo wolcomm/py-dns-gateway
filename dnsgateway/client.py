@@ -36,28 +36,41 @@ class DnsGatewayClient(object):
         log.debug(f"Setting authentication username: {username}")
         self.auth = (username, password)
 
-    def _get(self, path=None, params=None):
+    def _request(self, method="GET", path=None, params=None, data=None):
         if path.startswith("https://"):
             url = path
         else:
             url = f"{self.endpoint}/{path}"
-        log.debug(f"trying to GET {url}")
+        log.debug(f"Trying HTTP {method} to {url}")
         try:
-            resp = requests.get(url, auth=self.auth, params=params)
+            resp = requests.request(method, url, auth=self.auth,
+                                    params=params, json=data)
         except Exception as e:
             log.error(e)
+            raise e
+        log.debug(f"Got response {resp.status_code}: {resp.reason}")
+        log.debug(f"Response headers: {resp.headers}")
+        try:
+            resp.raise_for_status()
+        except Exception as e:
+            try:
+                detail = resp.json().get("detail")
+            except Exception:
+                detail = None
+            log.error(f"{e}: {detail}")
             raise e
         try:
             data = resp.json()
         except Exception as e:
             log.error(e)
             raise e
-        try:
-            resp.raise_for_status()
-        except Exception as e:
-            log.error(f"{e}: {data.get('detail')}")
-            raise e
         return data
+
+    def _get(self, path=None, params=None):
+        return self._request(method="GET", path=path, params=params)
+
+    def _post(self, path=None, data=None):
+        return self._request(method="POST", path=path, data=data)
 
     def _get_iter(self, path=None, params=None):
         next = path
@@ -119,6 +132,37 @@ class DnsGatewayClient(object):
                 log.error(err)
                 raise err
             return Contact(client=self, **data["results"][0])
+
+    def create_contact(self, id=None, name=None, org=None,
+                       email=None, phone=None, fax=None,
+                       address1=None, address2=None, address3=None,
+                       city=None, province=None, code=None, country=None):
+        """Create a contact."""
+        log.debug("Trying to create a new contact")
+        path = "registry/contacts/"
+        details = {
+            "id": id,
+            "phone": phone,
+            "fax": fax,
+            "email": email,
+            "contact_address": [
+                {
+                    "real_name": name,
+                    "org": org,
+                    "address1": address1,
+                    "address2": address2,
+                    "address3": address3,
+                    "city": city,
+                    "province": province,
+                    "code": code,
+                    "country": country,
+                    "type": type
+                } for type in ("loc", "int")
+            ]
+        }
+        log.debug(f"Contact details: {details}")
+        data = self._post(path=path, data=details)
+        return Contact(client=self, **data)
 
     @property
     def zones(self):

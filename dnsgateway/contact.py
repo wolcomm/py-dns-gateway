@@ -32,4 +32,6 @@ class Contact(BaseObject):
         "contact_address": lambda v: isinstance(v, list),
         "statuses": lambda v: v,
         "linked": lambda v: isinstance(v, bool),
+        "detail": lambda v: v,
+        "domains": lambda v: isinstance(v, int)
     }
