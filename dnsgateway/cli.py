@@ -87,6 +87,22 @@ def show_domain(ctx, domain_name):
         raise click.Abort
 
 
+@domain.command(name="check", help="Check domain name availability")
+@click.argument("domain_name")
+@click.option("--operation", default="create", help="Domain operation",
+              type=click.Choice(("transfer", "create", "renew", "restore")))
+@click.pass_context
+def check_domain(ctx, domain_name, operation):
+    """Check domain availability."""
+    log.debug(f"Checking availability of domain {domain_name}")
+    try:
+        charge = ctx.obj.check_domain(name=domain_name, op=operation)
+        click.echo(charge)
+    except Exception as e:
+        log.error(e)
+        click.Abort
+
+
 @domain.command(name="create", help="Create new domain")
 @click.option("--name", required=True, help="Domain name")
 @click.option("--period", default=1, help="Registration period in years")
@@ -96,6 +112,7 @@ def show_domain(ctx, domain_name):
 @click.option("--registrant", required=True, help="Registrant contact id")
 @click.option("--billing", required=True, help="Billing contact id")
 @click.option("--tech", required=True, help="Technical contact id")
+@click.option("--charge", required=True, help="Domain registration charge")
 @click.pass_context
 def create_domain(ctx, **kwargs):
     """Create a new domain."""

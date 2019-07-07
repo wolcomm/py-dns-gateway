@@ -117,8 +117,25 @@ class DnsGatewayClient(object):
                 raise err
             return Domain(client=self, **data["results"][0])
 
+    def check_domain(self, name=None, op="create"):
+        """Check domain name availability."""
+        log.debug(f"Checking availability of domain name {name} for {op}")
+        path = f"{Domain.base_path}/check/"
+        details = {"name": name}
+        log.debug(f"Check details: {details}")
+        data = self._post(path=path, data=details)
+        log.debug(f"Result: {data}")
+        if int(data["results"][0]["avail"]):
+            try:
+                return data["charge"]["action"][op]
+            except KeyError as e:
+                log.error(e)
+                raise e
+        else:
+            return False
+
     def create_domain(self, name=None, period=1, period_unit="y",
-                      autorenew=False, authinfo="coza", hosts=[],
+                      autorenew=False, authinfo="coza", hosts=[], charge=0,
                       admin=None, registrant=None, billing=None, tech=None):
         """Create a domain."""
         log.debug(f"Trying to create domain {name}")
@@ -132,7 +149,8 @@ class DnsGatewayClient(object):
             "authinfo": authinfo,
             "hosts": [{"hostname": host} for host in hosts],
             "contacts": [{"type": t, "contact": {"id": kwargs[t]}}
-                         for t in ("admin", "registrant", "billing", "tech")]
+                         for t in ("admin", "registrant", "billing", "tech")],
+            "charge": charge
         }
         log.debug(f"Domain details: {details}")
         data = self._post(path=path, data=details)
