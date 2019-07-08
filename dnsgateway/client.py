@@ -13,12 +13,12 @@
 
 import logging
 
-import requests
-
 from dnsgateway.contact import Contact
 from dnsgateway.domain import Domain
 from dnsgateway.helpers import gen_authinfo
 from dnsgateway.zone import Zone
+
+import requests
 
 log = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ class DnsGatewayClient(object):
                 err = RuntimeError(f"got {data['count']} results")
                 log.error(err)
                 raise err
-            return Domain(client=self, **data["results"][0])
+            return Domain(client=self, **data["results"][0]).refresh()
 
     def check_domain(self, name=None, op="create"):
         """Check domain name availability."""
@@ -179,7 +179,7 @@ class DnsGatewayClient(object):
                 err = RuntimeError(f"got {data['count']} results")
                 log.error(err)
                 raise err
-            return Contact(client=self, **data["results"][0])
+            return Contact(client=self, **data["results"][0]).refresh()
 
     def create_contact(self, id=None, name=None, org=None,
                        email=None, phone=None, fax=None,
