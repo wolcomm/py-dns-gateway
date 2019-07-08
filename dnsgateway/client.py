@@ -17,6 +17,7 @@ import requests
 
 from dnsgateway.contact import Contact
 from dnsgateway.domain import Domain
+from dnsgateway.helpers import gen_authinfo
 from dnsgateway.zone import Zone
 
 log = logging.getLogger(__name__)
@@ -136,7 +137,7 @@ class DnsGatewayClient(object):
             return False
 
     def create_domain(self, name=None, period=1, period_unit="y",
-                      autorenew=False, authinfo="coza", hosts=[], charge=None,
+                      autorenew=False, hosts=[], charge=None,
                       admin=None, registrant=None, billing=None, tech=None):
         """Create a domain."""
         log.debug(f"Trying to create domain {name}")
@@ -147,7 +148,7 @@ class DnsGatewayClient(object):
             "period": period,
             "period_unit": period_unit,
             "autorenew": autorenew,
-            "authinfo": authinfo,
+            "authinfo": gen_authinfo(name),
             "hosts": [{"hostname": host} for host in hosts],
             "contacts": [{"type": t, "contact": {"id": kwargs[t]}}
                          for t in ("registrant", "admin", "billing", "tech")]
