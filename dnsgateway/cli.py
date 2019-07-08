@@ -70,7 +70,8 @@ def list_domains(ctx):
     try:
         for domain in ctx.obj.domains:
             click.echo(domain)
-    except Exception:
+    except Exception as e:
+        log.error(e)
         raise click.Abort
 
 
@@ -83,7 +84,8 @@ def show_domain(ctx, domain_name):
     try:
         domain = ctx.obj.domain(name=domain_name)
         click.echo(domain)
-    except Exception:
+    except Exception as e:
+        log.error(e)
         raise click.Abort
 
 
@@ -171,7 +173,8 @@ def list_contacts(ctx):
     try:
         for contact in ctx.obj.contacts:
             click.echo(contact)
-    except Exception:
+    except Exception as e:
+        log.error(e)
         raise click.Abort
 
 
@@ -184,7 +187,8 @@ def show_contact(ctx, contact_id):
     try:
         contact = ctx.obj.contact(id=contact_id)
         click.echo(contact)
-    except Exception:
+    except Exception as e:
+        log.error(e)
         raise click.Abort
 
 
@@ -210,7 +214,8 @@ def create_contact(ctx, **kwargs):
     try:
         contact = ctx.obj.create_contact(**kwargs)
         click.echo(contact)
-    except Exception:
+    except Exception as e:
+        log.error(e)
         raise click.Abort
 
 
@@ -244,5 +249,6 @@ def list_zones(ctx):
     try:
         for zone in ctx.obj.zones:
             click.echo(zone)
-    except Exception:
+    except Exception as e:
+        log.error(e)
         raise click.Abort
