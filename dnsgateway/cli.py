@@ -112,14 +112,29 @@ def check_domain(ctx, domain_name, operation):
 @click.option("--registrant", required=True, help="Registrant contact id")
 @click.option("--billing", required=True, help="Billing contact id")
 @click.option("--tech", required=True, help="Technical contact id")
-@click.option("--charge", required=True, help="Domain registration charge")
+@click.option("--accept-charge", "-y", "accept", is_flag=True,
+              help="Accept registration charge without prompting")
 @click.pass_context
 def create_domain(ctx, **kwargs):
     """Create a new domain."""
+    log.debug(f"Checking availability of domain {kwargs['name']}")
+    try:
+        charge = ctx.obj.check_domain(name=kwargs["name"], op="create")
+    except Exception as e:
+        log.error(e)
+        click.Abort
+    if charge is False:
+        err = RuntimeError(f"Domain {kwargs['name']} is not available")
+        log.error(err)
+        click.Abort
+    accept = kwargs.pop("accept")
+    if not accept:
+        click.confirm(f"Accept registration charge of ${charge} "
+                      f"for {kwargs['name']}?", abort=True)
     log.debug("Creating new domain")
     log.debug(kwargs)
     try:
-        domain = ctx.obj.create_domain(**kwargs)
+        domain = ctx.obj.create_domain(**kwargs, charge=charge)
         click.echo(domain)
     except Exception as e:
         log.error(e)

@@ -97,11 +97,12 @@ class DnsGatewayClient(object):
 
     def domain(self, wid=None, name=None):
         """Get a domain by wid or name."""
-        if id and name:
+        if wid and name:
+            log.debug(f"wid:{wid} name:{name}")
             err = RuntimeError("specify only one of 'wid' or 'name'")
             log.error(err)
             raise err
-        if id:
+        if wid:
             log.debug(f"Trying to get domain by wid '{wid}'")
             path = f"{Domain.base_path}/{wid}"
             data = self._get(path=path)
@@ -135,7 +136,7 @@ class DnsGatewayClient(object):
             return False
 
     def create_domain(self, name=None, period=1, period_unit="y",
-                      autorenew=False, authinfo="coza", hosts=[], charge=0,
+                      autorenew=False, authinfo="coza", hosts=[], charge=None,
                       admin=None, registrant=None, billing=None, tech=None):
         """Create a domain."""
         log.debug(f"Trying to create domain {name}")
@@ -149,9 +150,10 @@ class DnsGatewayClient(object):
             "authinfo": authinfo,
             "hosts": [{"hostname": host} for host in hosts],
             "contacts": [{"type": t, "contact": {"id": kwargs[t]}}
-                         for t in ("admin", "registrant", "billing", "tech")],
-            "charge": charge
+                         for t in ("registrant", "admin", "billing", "tech")]
         }
+        if charge is not None:
+            details["charge"] = {"price": charge}
         log.debug(f"Domain details: {details}")
         data = self._post(path=path, data=details)
         return Domain(client=self, **data)
