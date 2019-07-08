@@ -15,8 +15,9 @@ import logging
 
 import click
 
-from dnsgateway.client import (DnsGatewayClient,
-                               DEVELOPMENT_ENDPOINT, PRODUCTION_ENDPOINT)
+from dnsgateway.client import (DEVELOPMENT_ENDPOINT,
+                               DnsGatewayClient,
+                               PRODUCTION_ENDPOINT)
 
 log = logging.getLogger(__name__)
 
