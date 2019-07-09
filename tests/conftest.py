@@ -13,16 +13,30 @@
 
 import json
 import os
-
-from dnsgateway import DnsGatewayClient
-from dnsgateway.client import DEVELOPMENT_ENDPOINT
+import uuid
 
 import click.testing
 
+from dnsgateway import DnsGatewayClient
+from dnsgateway.client import DEVELOPMENT_ENDPOINT
+from dnsgateway.contact import Contact
+
 import pytest
 
+import requests.exceptions
 
-@pytest.fixture()
+CONTACT_DATA = {"name": "Test Contact", "email": "test@example.com",
+                "phone": "+27.110001111", "city": "Test City",
+                "country": "ZA"}
+
+
+@pytest.fixture(scope="session")
+def session_id():
+    """Generate a unique session id."""
+    return f"test-{uuid.uuid4().hex[:8]}"
+
+
+@pytest.fixture(scope="session")
 def credentials():
     """Get credentials for the development environment."""
     credentials_path = os.path.join(os.path.dirname(__file__),
@@ -32,11 +46,34 @@ def credentials():
     return credentials
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def client(credentials):
     """Get an instance of DnsGatewayClient as a test fixture."""
     api_client = DnsGatewayClient(endpoint=DEVELOPMENT_ENDPOINT, **credentials)
     return api_client
+
+
+@pytest.fixture(scope="class")
+def contact(client, session_id):
+    """Create a test contact."""
+    contact = client.create_contact(id=session_id, **CONTACT_DATA)
+    assert isinstance(contact, Contact)
+    assert isinstance(contact.wid, int)
+    assert contact.id == session_id
+    for k in ("phone", "email"):
+        assert getattr(contact, k) == CONTACT_DATA[k]
+    for address in contact.contact_address:
+        assert address["real_name"] == CONTACT_DATA["name"]
+        assert address["city"] == CONTACT_DATA["city"]
+        assert address["country"] == CONTACT_DATA["country"]
+    yield contact
+    try:
+        contact.delete()
+    except requests.exceptions.HTTPError as e:
+        assert e.response.status_code == 400
+        assert e.response.json()["detail"] == \
+            "Domain dependencies prohibit contact 'delete' operation"
+    return
 
 
 @pytest.fixture()

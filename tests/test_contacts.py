@@ -11,12 +11,15 @@
 # the License.
 """dnsgateway client contact management tests."""
 
+from conftest import CONTACT_DATA
+
 from dnsgateway import DnsGatewayClient
 from dnsgateway.contact import Contact
 
 import pytest
 
 
+@pytest.mark.usefixtures("contact")
 class TestContacts(object):
     """Test cases for contact management."""
 
@@ -24,39 +27,23 @@ class TestContacts(object):
         """Test instantiation."""
         assert isinstance(client, DnsGatewayClient)
 
-    @pytest.mark.parametrize(
-        "data",
-        ({"id": "TEST", "name": "Test Name", "email": "test@example.com",
-          "phone": "+27.110001111", "city": "Test City", "country": "ZA"},)
-    )
-    def test_create_contact(self, client, data):
-        """Test contact creation."""
-        contact = client.create_contact(**data)
-        assert isinstance(contact, Contact)
-        assert isinstance(contact.wid, int)
-        for k in ("id", "phone", "email"):
-            assert getattr(contact, k) == data[k]
-        for address in contact.contact_address:
-            assert address["real_name"] == data["name"]
-            assert address["city"] == data["city"]
-            assert address["country"] == data["country"]
-
     def test_list_contacts(self, client):
         """Test contact listing."""
         count = 0
         for contact in client.contacts:
             assert isinstance(contact, Contact)
             count += 1
-        assert count > 0
+        assert count >= 1
 
-    @pytest.mark.parametrize("id", ("TEST",))
-    def test_get_contact(self, client, id):
+    def test_get_contact(self, client, session_id):
         """Test contact reading."""
-        contact = client.contact(id=id)
+        contact = client.contact(id=session_id)
         assert isinstance(contact, Contact)
-
-    def test_delete_contacts(self, client):
-        """Test contact deletion."""
-        for contact in client.contacts:
-            contact.delete()
-        assert len(list(client.contacts)) == 0
+        assert isinstance(contact.wid, int)
+        assert contact.id == session_id
+        for k in ("phone", "email"):
+            assert getattr(contact, k) == CONTACT_DATA[k]
+        for address in contact.contact_address:
+            assert address["real_name"] == CONTACT_DATA["name"]
+            assert address["city"] == CONTACT_DATA["city"]
+            assert address["country"] == CONTACT_DATA["country"]

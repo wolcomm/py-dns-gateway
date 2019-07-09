@@ -14,6 +14,11 @@
 from dnsgateway import DnsGatewayClient
 from dnsgateway.domain import Domain
 
+import pytest
+
+ZONES = ("com", "co.za", "africa")
+HOSTS = ("ns.example.com", "ns.example.net")
+
 
 class TestDomains(object):
     """Test cases for domain management."""
@@ -22,7 +27,42 @@ class TestDomains(object):
         """Test instantiation."""
         assert isinstance(client, DnsGatewayClient)
 
-    def test_domains(self, client):
-        """Test domains property."""
+    @pytest.mark.parametrize("zone", ZONES)
+    def test_create_domain(self, client, session_id, zone, contact):
+        """Test domain creation."""
+        name = f"py-dns-gateway-{session_id}.{zone}"
+        contacts = {k: contact.id
+                    for k in ("registrant", "admin", "billing", "tech")}
+        charge = client.check_domain(name=name)
+        assert charge is not False
+        domain = client.create_domain(name=name, hosts=HOSTS,
+                                      charge=charge, **contacts)
+        assert isinstance(domain, Domain)
+        assert isinstance(domain.wid, int)
+        assert domain.name == name
+        assert domain.zone == zone
+
+    def test_list_domains(self, client):
+        """Test domain listing."""
+        count = 0
         for domain in client.domains:
             assert isinstance(domain, Domain)
+            count += 1
+        assert count >= len(ZONES)
+
+    @pytest.mark.parametrize("zone", ZONES)
+    def test_get_domain(self, client, session_id, zone):
+        """Test domain reading."""
+        name = f"py-dns-gateway-{session_id}.{zone}"
+        domain = client.domain(name=name)
+        assert isinstance(domain, Domain)
+        assert isinstance(domain.wid, int)
+        assert domain.name == name
+        assert domain.zone == zone
+
+    @pytest.mark.parametrize("zone", ZONES)
+    def test_delete_domain(self, client, session_id, zone, contact):
+        """Test domain deletion."""
+        name = f"py-dns-gateway-{session_id}.{zone}"
+        domain = client.domain(name=name)
+        domain.delete()
