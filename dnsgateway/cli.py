@@ -103,7 +103,7 @@ def check_domain(ctx, domain_name, operation):
         click.echo(charge)
     except Exception as e:
         log.error(e)
-        click.Abort
+        raise click.Abort
 
 
 @domain.command(name="create", help="Create new domain")
@@ -125,11 +125,11 @@ def create_domain(ctx, **kwargs):
         charge = ctx.obj.check_domain(name=kwargs["name"], op="create")
     except Exception as e:
         log.error(e)
-        click.Abort
+        raise click.Abort
     if charge is False:
         err = RuntimeError(f"Domain {kwargs['name']} is not available")
         log.error(err)
-        click.Abort
+        raise click.Abort
     accept = kwargs.pop("accept")
     if not accept:
         click.confirm(f"Accept registration charge of ${charge} "
@@ -141,7 +141,7 @@ def create_domain(ctx, **kwargs):
         click.echo(domain)
     except Exception as e:
         log.error(e)
-        click.Abort
+        raise click.Abort
 
 
 @domain.command(name="delete", help="Delete domain")
@@ -156,7 +156,7 @@ def delete_domain(ctx, domain_name):
         click.echo(f"Domain {domain_name} deleted")
     except Exception as e:
         log.error(e)
-        click.Abort
+        raise click.Abort
 
 
 @main.group(help="Manage contacts")
@@ -232,7 +232,7 @@ def delete_contact(ctx, contact_id):
         click.echo(f"Contact {contact_id} deleted")
     except Exception as e:
         log.error(e)
-        click.Abort
+        raise click.Abort
 
 
 @main.group(help="Manage zones")
